@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: livecursors-frontend
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: livecursors-frontend
+  template:
+    metadata:
+      labels:
+        app: livecursors-frontend
+    spec:
+      containers:
+        - name: livecursors-container
+          image: potatofields/livecursors:frontendv1
+          ports:
+            - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: livecursors-frontend
+  labels:
+    app: livecursors-frontend
+spec:
+  type: NodePort
+  ports:
+    - port: 3000
+      protocol: TCP
+      targetPort: 3000
+      nodePort: 30004
+  selector:
+    app: livecursors-frontend

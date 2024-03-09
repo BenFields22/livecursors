@@ -1,0 +1,20 @@
+FROM node:latest as build
+WORKDIR /app
+ENV PATH /app/node_modules/.bin:$PATH
+ENV WDS_SOCKET_PORT 0
+
+COPY package.json ./
+COPY package-lock.json ./
+RUN npm ci --silent
+RUN npm install react-scripts@3.4.1 -g --silent
+COPY . ./
+
+RUN npm run build
+
+# production environment
+FROM nginx:stable-alpine
+COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/build /usr/share/nginx/html
+
+EXPOSE 3000
+CMD ["nginx", "-g", "daemon off;"]
